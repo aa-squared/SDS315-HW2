@@ -1,0 +1,300 @@
+---
+title: "SDS 315 - Homework 2"
+author: "Aggie Angeles"
+date: "2024-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(kableExtra)
+
+ProfsUT <- read.csv("profs.csv")
+Bikes <- read.csv("bikeshare.csv")
+CapMetro <- read.csv("capmetro_UT.csv")
+Billboard <- read.csv("billboard.csv")
+```
+
+## *Problem 1: Beauty, or not, in the classroom* 
+### *Part A*
+
+```{r  echo=FALSE, message=FALSE}
+ggplot(ProfsUT) + geom_histogram(aes(x = eval), col = "darkslategrey", fill = "darkslategray4", binwidth = 0.1) + labs(title = "Distribution of Course Evaluation Scores", x = "Average Scores (1 to 5)") + theme(text=element_text(size=12,  family="serif"))
+```
+
+
+
+The Distribution of Course Evaluation Scores for professor, with the five number summary being as follows: `r fivenum(ProfsUT$eval, na.rm = TRUE)`. The data reveals that a majority of the professors score well on their course evaluations. The median has a score of `r median(ProfsUT$eval, na.rm = TRUE)`. The first quartile has a score of `r quantile(ProfsUT$eval, .25, na.rm = TRUE)` and the third quartile has a score of `r  quantile(ProfsUT$eval, .75, na.rm = TRUE)`. 
+
+### *Part B*
+
+```{r echo=FALSE, message=FALSE}
+ggplot(ProfsUT) + geom_boxplot(aes(x = native, y = eval), col = "darkslategrey", fill = "darkslategray4", bins = 25) + labs(title = "Distribution of Course Evaluation Scores by native English speakers", x = "Average Scores (1 to 5)", y = "Native English Speaker") + theme(text=element_text(size=12,  family="serif"))
+
+NoNative <- ProfsUT[ProfsUT$native == "no", ]
+Native <- ProfsUT[ProfsUT$native == "yes",]
+
+NoNativeFirstQ <- quantile(NoNative$eval, .25)
+
+NoNativeThirdQ <- quantile(NoNative$eval, .75, na.rm = TRUE)
+
+NoNativeIQR <- NoNativeThirdQ - NoNativeFirstQ
+
+NativeFirstQ <- quantile(Native$eval, .25, na.rm = TRUE)
+NativeThirdQ <- quantile(Native$eval, .75, na.rm = TRUE)
+
+NativeIQR <- NativeThirdQ - NativeFirstQ
+
+
+```
+
+
+
+
+The median score for Non-Native English speaking professors is `r median(NoNative$eval, na.rm = TRUE)`. For Non-Native English speaking professors, the interquartile range (IQR) is `r NoNativeIQR`.
+
+The median score for Native English speaking professors is `r median(Native$eval, na.rm = TRUE)`.
+For Native English speaking professors, the interquartile range is `r NativeIQR`.
+
+As revealed through the data, Native English speaking professors tend to receive higher course evaluation scores in comparison to their counterpart. Interestingly enough, both Native and Non-Native professors have the same IQR.
+
+
+### *Part C*
+
+```{r echo=FALSE, message=FALSE}
+ggplot(ProfsUT) + geom_histogram(aes(x = eval), col = "darkslategrey", fill = "darkslategray4", binwidth = 0.1) + facet_wrap(~gender, nrow=2) + labs(title = "Distribution of Course Evaluation Scores by Gender", x = "Average Scores (1 to 5)") + theme(text=element_text(size=12,  family="serif"))
+
+FemaleProf <- ProfsUT[ProfsUT$gender == "female", ]
+MaleProf <- ProfsUT[ProfsUT$gender == "male",]
+
+```
+
+
+
+
+The Distribution of Course Evaluation Scores for female professor, with the five number summary being as follows: `r fivenum(FemaleProf$eval, na.rm = TRUE)`. The median has a score of `r median(FemaleProf$eval, na.rm = TRUE)`. The first quartile has a score of `r quantile(FemaleProf$eval, .25, na.rm = TRUE)` and the third quartile has a score of `r  quantile(FemaleProf$eval, .75, na.rm = TRUE)`.
+
+The Distribution of Course Evaluation Scores for male professor, with the five number summary being as follows: `r fivenum(MaleProf$eval, na.rm = TRUE)`. The median has a score of `r median(MaleProf$eval, na.rm = TRUE)`. The first quartile has a score of `r quantile(MaleProf$eval, .25, na.rm = TRUE)` and the third quartile has a score of `r  quantile(MaleProf$eval, .75, na.rm = TRUE)`. 
+
+The summary statistics of the two plots convey that male professors perform slightly better than female professors, however the two share a highly similar distribution. This shows that both male and female professors both do well as seen by their comparative evaluation scores.
+
+
+### *Part D*
+
+```{r  echo=FALSE, message=FALSE}
+ggplot(ProfsUT) + geom_point(aes(x = beauty, y = eval), col = "darkslategrey", fill = "darkslategray4") + labs(title = "Distribution of Course Evaluation Scores by Beauty", y = "Average Scores (1 to 5)", x = "Attractiveness") + theme(text=element_text(size=12,  family="serif"))
+
+
+
+```
+
+
+
+
+The relationship between a professor's beauty related to evaluation scores has a positive correlation of `r round(cor(ProfsUT$beauty, ProfsUT$eval), 2)`, indicating a weak relationship between the two variables. The two variables do not seem to be strongly related to one another as most of the evaluation scores are vary greatly regardless of the professor's beauty indicated by the graph. 
+
+
+
+## *Problem 2: bike sharing*
+### *Plot A*
+
+```{r  echo=FALSE, message=FALSE}
+
+PlotA = Bikes %>%
+  group_by(hr) %>% 
+  summarize("AvgTotal" = mean(total))
+
+ggplot(PlotA) + 
+  geom_line(aes(x = hr,  y = AvgTotal)) + 
+  labs(title = "Distribution of Bike Rentals", x = "Hour of Day", y = "Average Bike Rentals") + theme(text=element_text(size=12,  family="serif"))
+  
+```
+
+
+
+The distribution of average bike rentals in relation to the hour of the day, there are two high peaks of interest with a dip in between the hours of 7 AM to 5 PM. The first peak which occurs around 8 AM to 9 AM could possibly convey a high concentration of people renting bikes in order to exercise or get early morning movement in. The second peak which occurs around 4 PM to 5 PM could be accounted for by the volume of people that are getting off of work and are in need of transportation back home. 
+
+The dip that occurs may occur due to a large volume of people working, in school, or being stationary in a building as the hours this dip happens is between 7 AM to 5 PM.
+
+##
+### *Plot B*
+
+```{r echo=FALSE, message=FALSE}
+PlotB = Bikes %>% 
+  group_by(hr, workingday) %>% 
+  summarize("AvgTotal" = mean(total))
+
+ggplot(PlotB) +
+  geom_line(aes(x = hr, y = AvgTotal)) + facet_wrap(~workingday, nrow = 1) + 
+  labs(title = "Distribution of Bike Rentals by Type of Day", x = "Hour of Day", y = "Average Bike Rentals") + theme(text=element_text(size=12,  family="serif")) +
+  facet_wrap(~workingday, labeller = labeller(workingday = c("0" = "Weekday", "1" = "Working day")))
+
+```
+
+
+
+When investigating the weekday distribution of average bike rentals in relation to the hour of the day, the peak resides between the hours of around 1 PM to 4 PM. This may be due to the amount of people not working, but rather enjoying their leisure. With them not working, they have the freedom to bike the hours of high social activity. 
+
+Additionally, the working day distribution parallels that of our first graph with this dataset. 
+There is a sharper contrast however between the peaks in valleys in comparison to the other graph. The working day distribution has high averages that outweigh that of the highest point in the weekday distribution.
+
+
+##
+### *Plot C*
+
+```{r echo=FALSE, message=FALSE}
+PlotC = Bikes %>% 
+  filter(hr == 9) %>% 
+  group_by(weathersit, workingday) %>% 
+  summarize("AvgTotal" = mean(total)) 
+
+ggplot(PlotC) +
+  geom_col(aes(x= factor(weathersit), y = AvgTotal)) + 
+  labs(title = "9 AM Ridership by Weather", x = "Weather Situation", y = "Average Ridership") + theme(text=element_text(size=12,  family="serif")) +
+  facet_wrap(~workingday, labeller = labeller(workingday = c("0" = "Weekday", "1" = "Working day")))
+
+
+```
+
+
+For weekdays, 9 AM ridership varied by the weather situation. When it was weather situation 1, a clear sky day, or 2, a misty or cloudy day, there was an average ridership between 150 to 175. In contrast when days had a weather situation of 3, either light snow or rain, average ridership dropped by about half the amount in situation 1 or 2. Weather indeed influenced the average ridership as people attempted to avoid less than pleasant riding conditions.
+
+The same can be said for working days with the general comparisons between weather situation staying the same just at high volumes of ridership. This conveys a greater commitment by people to ride in adverse conditions in order to get to work.
+
+Both graphs had an average ridership of 0 when the weather was situation 4, heavy rain, storms, or icy conditions. 
+
+## *Problem 3 - Capital Metro UT Ridership*
+### *Average Boarding*
+
+
+```{r echo=FALSE, message=FALSE}
+# Recode the categorical variables in sensible, rather than alphabetical, order
+CapMetro = mutate(CapMetro,
+day_of_week = factor(day_of_week,
+levels=c("Mon", "Tue", "Wed","Thu", "Fri", "Sat", "Sun")),
+month = factor(month,
+levels=c("Sep", "Oct","Nov")))
+```
+
+```{r echo=FALSE, message=FALSE}
+PlotD = CapMetro %>% 
+  group_by(hour_of_day, day_of_week, month) %>% 
+  summarize("AvgBoard" = mean(boarding)) 
+
+ggplot(PlotD) +
+  geom_line(aes( x = hour_of_day, y = AvgBoard, col = month)) + facet_wrap(~day_of_week) +
+  labs(title = "Distribution of Average Boarding by Day", x = "Hour of Day", y = "Average Boarding") + theme(text=element_text(size=12,  family="serif")) 
+```
+
+
+
+
+The graphs display the the average boarding by the day of week as faceted by the months of September, October, and November. The hour of peak boarding stays about the same between days of the week, sans the weekend. This could be explained by the fact that the weekdays are typically working days. A high volume of people tend to all get off work at the same time of day throughout the working week hence the similarity. 
+
+The average boardings on Mondays in September look lower in comparison to other days and months which could possibly be explained by there being less Mondays in September in comparison to the other two months in turning meaning less data. Logically speaking, UT students may be in classes on Mondays thus they do not need to ride the bus as much.
+
+The average boardings on Weds/Thurs/Fri in November may look lower because students leave to go home for break and thus there is a smaller volume of students needing to use the bus as classes are not in session. Additionally it may also be that it is starting to get cold outside and students do not want to be out in the cold, and instead choose to stay home and do schoolwork. 
+
+
+### *Boarding v.s Temperature*
+
+
+```{r echo=FALSE, message=FALSE}
+# boardings (y) vs. temperature (x)
+
+ggplot(CapMetro) + 
+  geom_point(aes(x = temperature, y = boarding, col = weekend)) +
+  labs(title = "Relationship Boarding & Temperature", x = "Temperature", y = "Boarding") + theme(text=element_text(size=12,  family="serif")) +
+  facet_wrap(~hour_of_day)
+
+```
+
+
+
+One faceted scatter plot showing boardings (y) vs. temperature (x), faceted by hour of the day, and with points colored in according to whether it is a weekday or weekend. 
+
+Give the figure an informative caption in which you explain what is shown in the figure and also answer the following question, citing evidence from the figure. 
+
+The graphs display the boarding by whether it was a weekday or weekend as faceted temperature.
+Temperature does not seem to have a noticeable effect on the number of UT students riding the bus. Regardless of temperature, the concentration of students boarding has a a wide distribution at all hours of the day.
+
+
+## *Problem 4: Wrangling the Billboard Top 100*
+### *Part A*
+
+
+
+```{r echo=FALSE, message=FALSE}
+TopTenSongs = Billboard %>% 
+  group_by(performer, song) %>% 
+  summarize("Count" = max(weeks_on_chart)) %>% 
+  arrange(desc(Count)) %>% 
+  head(10)
+  
+  
+
+CountKbl = kbl(TopTenSongs, col.names = c("Performer", "Song", "Count"), caption = "Top 10 most popular songs since 1958",)
+
+CountKbl %>%
+  kable_classic(full_width = F, html_font = "Cambria", font_size = 12)
+
+```
+
+
+
+The table displays the top ten most popular songs since 1958 as calculated by the number of weeks that the song appeared in the Billboard Top 100. There are three columns of interest: performer, song, and count. Count is the number of weeks the song charted for. The count ranged from 87 weeks to 64 weeks, with the top song being Radioactive by Imagine Dragons.
+
+
+### *Part B*
+
+
+```{r echo=FALSE, message=FALSE}
+UniqSongsPlot = Billboard %>% 
+  filter(!(year == 1958 | year == 2021)) %>% 
+  group_by(year) %>% 
+  summarize("UniqueSongs" = length(unique(song)))
+
+ggplot(UniqSongsPlot) +
+  geom_line(aes(x = year, y = UniqueSongs)) + 
+  labs(title = "Unique Songs on the Billboard Top 100", x = "Year", y = "Songs") + theme(text=element_text(size=12,  family="serif"))
+
+```
+
+
+
+ line graph displays the top ten most popular songs since 1958 as calculated by the number of weeks that the song appeared in the Billboard Top 100, not including 1958 or 2021. Two points of interest would be the peak that appeared around the 1970s and the valley that occurred around the 2000s. 
+
+The peak in the 1960s could be pointed towards the fact that many songs at the time were one-hit wonders, whereas in 2000s the dip that occurs could be because there was a lot of repetitive play of certain songs that would constantly appear on the Billboard Top 100.
+
+
+
+### *Part C*
+
+
+```{r echo=FALSE, message=FALSE}
+TenWkHits = Billboard %>%
+  group_by(performer, song) %>% 
+  filter(weeks_on_chart >= 10) %>% 
+  summarize("Count" = max(weeks_on_chart)) 
+  
+ArtistTenWks = TenWkHits %>% 
+  group_by(performer) %>% 
+  summarize("ArtistCount" = n()) %>% 
+  filter(ArtistCount >= 30)
+  
+  
+
+ggplot(ArtistTenWks) +
+  geom_col(aes(x = reorder(performer, ArtistCount), y = ArtistCount), 
+           col = "darkslategrey", fill = "darkslategray4") + 
+  labs(title = "Artists With Billboard Ten-Week Hits", x = "Artist", y = "Songs") + theme(text=element_text(size=12,  family="serif")) +
+  coord_flip()
+
+```
+
+
+The chart showcases the 19 artists who have had 30 or more of their songs appear on the Billboard Top 100 for at least ten weeks. The range of songs is from a minimum of 30 to a maximum of 52. Of the 19 artists the amount of songs is typically between 30 to 45, with Elton John being the sole artist to have over 50 songs chart on the Billboard Top 100 for at least ten weeks.
+
+
